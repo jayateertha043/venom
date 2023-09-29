@@ -35,7 +35,7 @@ Venom comes equipped with a diverse set of features:
 * Compile & Upload Venom firmware into ESP 32 (38 pin) using PlatformIO
 * Solder the components into the PCB
 * Power On Venom using either 5V battery module or simply using a compatible powerbank & micro usb cable
-* Connect to Venom WiFi Hotspot through your mobile/desktop
+* Connect to VENOM WiFi Hotspot through your mobile/desktop (password: 12345678)
 * Open [Venom Web Console](./web/index.html) locally after downloading the web directory of this repository in your mobile/desktop to control Venom wirelessly ([Demo Website](https://venom.jayateerthag.in))
 
 ## Schematics
