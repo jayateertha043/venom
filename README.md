@@ -24,7 +24,7 @@ Venom comes equipped with a diverse set of features:
 ## Usage
 
 * Get the required hardware
-    * Venom PCB (Print the PCB using the [Gerber Files](./res/Gerber_PCB_Venom_v1.zip))
+    * Venom PCB (Print the PCB using the [Gerber Files](./web/res/Gerber_PCB_Venom_v1.zip))
     * [ESP 32 (38 Pin)](https://www.amazon.in/ESP-32S-Development-Bluetooth-Ultra-Low-Consumption/dp/B07P6JBRSP?th=1)
     * [CC1101](https://www.ebay.com/itm/374591955761?mkevt=1&mkpid=0&emsid=e11050.m43.l1123&mkcid=7&ch=osgood&euid=7d9c602d2b934d20aa2094d9f367e922&bu=44768769130&osub=-1%7E1&crd=20230726225259&segname=11050)
     * [RC522 RFID Card Reader Module 13.56MHz](https://www.amazon.in/ApTechDeals-RFID-Kit-Arduino-Raspberry/dp/B07Q1B6QZR/ref=sr_1_1?crid=22FLJ2C6VC99O&keywords=rc522&qid=1695980451&s=industrial&sprefix=rc522+pins%2Cindustrial%2C352&sr=1-1)
@@ -42,7 +42,7 @@ Venom comes equipped with a diverse set of features:
 [OSHWLAB Project Link](https://oshwlab.com/jayateertha043/venom_v1)
 </br>
 </br>
-<img src="./res/Schematics.png" height="550" width="600"></img>
+<img src="./web/res/Schematics.png" height="550" width="600"></img>
 
 ## Demo
 
@@ -52,15 +52,15 @@ Venom comes equipped with a diverse set of features:
 </br>
 PCB Reference Image Without any components soldered
 </br>
-<img src="./res/PCB_VENOM_DEMO_2.jpg" height="250" width="400"></img>
+<img src="./web/res/PCB_VENOM_DEMO_2.jpg" height="250" width="400"></img>
 </br> 
 PCB Reference Image With Female Headers soldered & main components(ESP 32 & OLed Display) inserted into the female headers.
 </br>
-<img src="./res/PCB_VENOM_DEMO_1.jpg" height="250" width="400"></img>
+<img src="./web/res/PCB_VENOM_DEMO_1.jpg" height="250" width="400"></img>
 </br> 
 PCB Reference Image With Female Headers soldered & components inserted into the female headers.
 </br>
-<img src="./res/PCB_VENOM_DEMO_3.jpg" height="250" width="400"></img>
+<img src="./web/res/PCB_VENOM_DEMO_3.jpg" height="250" width="400"></img>
 </br>
 
 ## Contributing
