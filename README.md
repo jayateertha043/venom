@@ -18,6 +18,7 @@ Welcome to Venom, your all-in-one portable wireless & hardware hacking companion
 
 Venom comes equipped with a diverse set of features:
 
+- [x] Modular Design:  PCB uses female headers for quick component attachment, such as the ESP32 and OLED Display. If a component malfunctions, it's a breeze to swap it out. Also, a 20-pin header extension is available for connecting external modules like CC1101, RC522, or nRF24L01, making customization and portability a snap.
 - [x] RF Signal Detection: Identify and detect RF signals in your vicinity.
 - [x] Signal Recording: Capture and record RAW RF signals for later analysis. (Flipper Zero Compatible Format)
 - [x] RF Signal Transmission: Transmit RAW RF signals to interact with compatible devices. (Flipper Zero Compatible Format)
