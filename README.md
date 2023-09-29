@@ -1,6 +1,14 @@
-<center><h1><b>VENOM</b></h1></center>
-
-> Venom - Your Portable Wireless & Hardware Hacking Companion
+<h1 align="center">VENOM</h1>
+<h3 align="center">Venom - Your Portable Wireless & Hardware Hacking Companion</h3>
+<p align="center">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000" />
+  <a href="https://github.com/jayateertha043/FireOver/blob/master/LICENCE.txt" target="_blank">
+    <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" />
+  </a>
+  <a href="https://twitter.com/jayateerthaG" target="_blank">
+    <img alt="Twitter: jayateerthaG" src="https://img.shields.io/twitter/follow/jayateerthaG.svg?style=social" />
+  </a>
+</p>
 
 ## Introduction
 
