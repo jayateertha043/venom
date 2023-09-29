@@ -12,7 +12,7 @@
 
 ## Introduction
 
-Welcome to Venom, your all-in-one portable wireless & hardware hacking device. Venom is designed to empower you with a wide range of capabilities for working with wireless & hardware penetration testing.
+Welcome to Venom, your all-in-one portable wireless & hardware hacking companion. Venom is designed to empower you with a wide range of capabilities for working with wireless & hardware penetration testing.
 
 ## Features
 
