@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>2D Byte Array Editor</title>
+</head>
+
+<body>
+    <h1>2D Byte Array Editor</h1>
+
+    <input type="file" id="fileInput" accept=".txt">
+    <div id="arrayContainer"></div>
+    <button id="downloadButton" disabled>Download</button>
+
+    <script>
+        let byteArr = [];
+
+        // Function to handle file upload
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const contents = e.target.result;
+                byteArr = parseByteArray(contents);
+                displayByteArray(byteArr);
+                enableDownloadButton();
+            };
+
+            reader.readAsText(file);
+        }
+
+        // Function to parse the file contents and convert it into a 2D byte array
+        function parseByteArray(contents) {
+            try {
+                const byteArr = JSON.parse(contents);
+                if (!Array.isArray(byteArr)) {
+                    throw new Error('Invalid file format');
+                }
+
+                for (let row of byteArr) {
+                    if (!Array.isArray(row)) {
+                        throw new Error('Invalid file format');
+                    }
+
+                    for (let i = 0; i < row.length; i++) {
+                        if (typeof row[i] !== 'number') {
+                            throw new Error('Invalid file format');
+                        }
+                    }
+                }
+
+                return byteArr;
+            } catch (error) {
+                console.error('Error parsing file:', error);
+                return [];
+            }
+        }
+
+
+
+
+
+        // Function to display the 2D byte array as a table with editable hex values
+        function displayByteArray(byteArr) {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+
+            const table = document.createElement('table');
+
+            for (let row of byteArr) {
+                const tableRow = document.createElement('tr');
+
+                for (let value of row) {
+                    const tableCell = document.createElement('td');
+                    const input = document.createElement('input');
+
+                    input.type = 'text';
+                    input.value = value.toString(16);
+                    input.addEventListener('input', handleHexValueChange);
+
+                    tableCell.appendChild(input);
+                    tableRow.appendChild(tableCell);
+                }
+
+                table.appendChild(tableRow);
+            }
+
+            container.appendChild(table);
+        }
+
+        // Function to handle changes in the hex values and update the byte array
+        function handleHexValueChange(event) {
+            const newValue = parseInt(event.target.value, 16);
+            const row = event.target.parentNode.parentNode.rowIndex;
+            const col = event.target.parentNode.cellIndex;
+
+            byteArr[row][col] = newValue;
+        }
+
+        // Function to enable the download button
+        function enableDownloadButton() {
+            const downloadButton = document.getElementById('downloadButton');
+            downloadButton.disabled = false;
+        }
+
+        // Function to download the edited byte array as a .txt file
+        function downloadByteArray() {
+            const editedArray = byteArr.map(row => "[" + row.join(",") + "]").join(",\n");
+            const content = "[" + editedArray + "]";
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            link.href = url;
+            link.download = 'edited_array.txt';
+            link.click();
+
+            URL.revokeObjectURL(url);
+        }
+
+
+        // Add event listeners
+        document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+        document.getElementById('downloadButton').addEventListener('click', downloadByteArray);
+    </script>
+</body>
+
+</html>

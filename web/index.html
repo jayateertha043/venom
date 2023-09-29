@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VENOM</title>
+  <link rel = "icon" href ="../res/VENOM_TRANSPARENT.png" type = "image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css">
+  <style>
+    body.dark-mode {
+      background-color: #222;
+      color: #fff;
+    }
+
+    body.dark-mode h1,
+    body.dark-mode h2 {
+      color: #fff;
+    }
+
+    body.dark-mode p,
+    body.dark-mode label,
+    body.dark-mode input,
+    body.dark-mode select,
+    body.dark-mode textarea,
+    body.dark-mode .btn {
+      color: #fff;
+      background-color: #333;
+    }
+
+    body.dark-mode select,
+    body.dark-mode textarea,
+    body.dark-mode .btn {
+      border-color: #555;
+    }
+
+    body.dark-mode #packetWindow {
+      border-color: #0f0;
+      color: rgb(239, 246, 118);
+    }
+
+    body.dark-mode #packetWindowP,
+    body.dark-mode #packetWindow p {
+      color: rgb(239, 246, 118);
+      font-weight: 500;
+    }
+  </style>
+</head>
+
+<body class="dark-mode">
+  <div class="container">
+    <h1><img src="../res/VENOM_TRANSPARENT.png" height="150" width="150"></img>VENOM</h1>
+    
+    <p id="connectionStatus"></p>
+    <div class="mb-3">
+      <label for="actionDropdown" class="form-label">Action</label>
+      <select class="form-select" id="actionDropdown">
+        <option value="READRFID">READRFID</option>
+        <option value="WRITERFID">WRITERFID</option>
+        <option value="RECIEVERF">RECIEVERF (RAW)</option>
+        <option value="TRANSMITRFRAW">TRANSMITRF (RAW)</option>
+        <option value="DETECTRF">DETECTRF</option>
+        <option value="JAMRF">JAMRF</option>
+        <option value="DEAUTH">DEAUTH WiFi</option>
+      </select>
+    </div>
+    <div id="additionalInputsRFID" style="display: none;">
+      <div class="mb-3">
+        <label for="fileInput" class="form-label">Upload File</label>
+        <input type="file" class="form-control" id="fileInput" accept=".txt">
+      </div>
+    </div>
+    <div id="additionalInputsRAW" style="display: none;">
+      <div class="mb-3">
+        <label for="fileInputRAW" class="form-label">Upload File</label>
+        <input type="file" class="form-control" id="fileInputRAW" accept=".txt,.sub">
+      </div>
+    </div>
+    <div id="additionalInputs" style="display: none;">
+      <div class="mb-3">
+        <label for="frequencyInput" class="form-label">Frequency</label>
+        <input type="number" step="0.01" class="form-control" id="frequencyInput" value="433.92">
+      </div>
+
+      <div class="mb-3">
+        <label for="deviationInput" class="form-label">Deviation</label>
+        <input type="number" step="0.01" class="form-control" id="deviationInput" value="2">
+      </div>
+
+      <div class="mb-3">
+        <label for="dataRateInput" class="form-label">Data Rate</label>
+        <input type="number" step="0.01" class="form-control" id="dataRateInput" value="5">
+      </div>
+
+      <div class="mb-3">
+        <label for="bandwidthInput" class="form-label">Bandwidth</label>
+        <input type="number" step="0.01" class="form-control" id="bandwidthInput" value="58">
+      </div>
+
+      <div class="mb-3">
+        <label for="modulationDropdown" class="form-label">Modulation</label>
+        <select class="form-select" id="modulationDropdown">
+          <option value="0">2-FSK</option>
+          <option value="1">GFSK</option>
+          <option value="2" selected>ASK/OOK</option>
+          <option value="3">4-FSK</option>
+          <option value="4">MSK</option>
+        </select>
+      </div>
+
+      <div id="payloadInput" style="display: none;">
+        <div class="mb-3">
+          <label for="payloadTextarea" class="form-label">Payload</label>
+          <textarea class="form-control" id="payloadTextarea"></textarea>
+        </div>
+      </div>
+      <div id="channelInput" style="display: none;">
+        <div class="mb-3">
+          <label for="channelInputArea" class="form-label">Channel</label>
+          <input class="form-control" id="channelInputArea" type="number" value="0"></textarea>
+        </div>
+      </div>
+      <div id="durationInput" style="display: none;">
+        <div class="mb-3">
+          <label for="durationInputArea" class="form-label">Duration (mins)</label>
+          <input class="form-control" id="durationInputArea" type="number" value="0"></textarea>
+        </div>
+      </div>
+    </div>
+    <div id="bssidInput" style="display: none;">
+      <div class="mb-3">
+        <label for="bssidTextarea" class="form-label">bssid</label>
+        <textarea class="form-control" id="bssidTextarea"></textarea>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary" onclick="submitForm()">Submit</button>
+
+    <h2>Incoming Packets</h2>
+    <div id="packetWindow" class="mb-6 text-justify">
+      <p id="packetWindowP" class="mb-6 text-justify" style="word-wrap: break-word;"></p>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="downloadData()">Download</button>
+  </div>
+
+  <script>
+    var fileUploadContent;
+    const connectionStatusElement = document.getElementById("connectionStatus");
+    const packetWindowW = document.getElementById("packetWindow");
+    const packetWindowP = document.getElementById("packetWindowP");
+    const websocket = new WebSocket("ws://192.168.1.1:81");
+    let isConnected = false;
+    var rawConf;
+    var filename = "data.txt";
+    function formatArray(array) {
+      return "[" + array.map(innerArray => formatInnerArray(innerArray)).join(",\n") + "]";
+    }
+
+    function formatInnerArray(innerArray) {
+      return "[" + innerArray.join(",") + "]";
+    }
+
+    function parsef0Presets(preset) {
+      var modulation = 2;
+      var dRate = 5;
+      var bandwidth = 270;
+      var deviation = 2;
+      console.log(preset);
+      if (preset === "FuriHalSubGhzPresetOok270Async") {
+        modulation = 2;
+        bandwidth = 270;
+        deviation = 2;
+      } else if (preset === "FuriHalSubGhzPresetOok650Async") {
+        modulation = 2;
+        bandwidth = 650;
+        deviation = 2;
+      } else if (preset === "FuriHalSubGhzPreset2FSKDev238Async") {
+        modulation = 0;
+        bandwidth = 270;
+        deviation = 2;
+      } else if (preset === "FuriHalSubGhzPreset2FSKDev476Async") {
+        modulation = 0;
+        bandwidth = 270;
+        deviation = 47;
+      } else if (preset === "Custom Preset") {
+        if (rawConf.Modulation != null && rawConf.Deviation != null && rawConf.Bandwidth != null) {
+          modulation = rawConf.Modulation;
+          deviation = rawConf.Deviation;
+          bandwidth = rawConf.Bandwidth;
+        } else {
+          return null;
+        }
+      }
+      var presets = { "modulation": modulation, "bandwidth": bandwidth, "deviation": deviation, "datarate": dRate };
+      return presets;
+    }
+
+    function parseRawData(rawString) {
+      const lines = rawString.split('\n');
+      let variables = {};
+
+      lines.forEach(line => {
+        const parts = line.split(':');
+        if (parts.length > 1) {
+          const key = parts[0].trim();
+          const value = parts[1].trim();
+
+          if (key === 'RAW_Data') {
+            if (!variables.RAW) {
+              variables.RAW = [];
+            }
+            const rawValues = value.split(' ').map(val => parseInt(val));
+            variables.RAW.push(rawValues);
+          } else {
+            variables[key] = value;
+          }
+        }
+
+      });
+
+      variables.Frequency = parseFloat(variables.Frequency);
+
+      return variables;
+    }
+    websocket.onmessage = function (event) {
+      console.log(event.data);
+      packetWindowW.style.border = "1px solid green";
+      packetWindow.innerHTML = "";
+
+      let dataArray;
+
+      try {
+        // Try parsing the data as JSON
+        dataArray = JSON.parse(event.data);
+
+        if (Array.isArray(dataArray)) {
+          const newPacket = document.createElement("p");
+          newPacket.innerText = formatArray(dataArray);
+          packetWindow.appendChild(newPacket);
+        }
+      } catch (error) {
+        // Handle plain text
+        const newPacket = document.createElement("p");
+        newPacket.innerText = event.data;
+        packetWindow.appendChild(newPacket);
+      }
+    };
+
+    websocket.onopen = function () {
+      isConnected = true;
+      connectionStatusElement.innerText = "WebSocket connected";
+      packetWindowW.style.border = "1px solid green";
+    };
+
+    websocket.onclose = function () {
+      isConnected = false;
+      connectionStatusElement.innerText = "WebSocket disconnected";
+      packetWindowW.style.border = "1px solid red";
+    };
+
+    websocket.onerror = function () {
+      isConnected = false;
+      connectionStatusElement.innerText = "WebSocket disconnected";
+      packetWindowW.style.border = "1px solid red";
+    };
+
+
+
+    function submitForm() {
+      if (!isConnected) {
+        connectWebSocket();
+      }
+      packetWindowW.innerHTML = "";
+      const action = document.getElementById("actionDropdown").value;
+
+      let payload = null;
+      let data = null;
+      let config = "";
+      let bssid = "";
+
+      if (action === "WRITERFID") {
+        try {
+          var rfiddata = JSON.parse(fileUploadContent);
+          console.log(fileUploadContent);
+          console.log(rfiddata);
+          if (Array.isArray(rfiddata)) {
+            data = `, "data":${fileUploadContent}`
+          } else {
+            fileUploadContent = null;
+            return;
+          }
+        } catch (error) {
+          console.log(error);
+          return;
+        }
+      }
+
+      if (action === "TRANSMITRF") {
+        const userPayload = document.getElementById("payloadTextarea").value;
+        payload = `, "payload": "${userPayload}"`;
+      }
+
+      if (action === "TRANSMITRFRAW") {
+        rawConf = parseRawData(fileUploadContent);
+        console.log(rawConf);
+        var rawArray = JSON.stringify(rawConf.RAW);
+        console.log(typeof (rawArray));
+        console.log(rawArray);
+        var presets = parsef0Presets(rawConf.Preset);
+
+        config = `, "config": {
+          "frequency": ${rawConf.Frequency / 1000000},
+          "deviation": ${presets.deviation},
+          "datarate": ${presets.datarate},
+          "bandwidth": ${presets.bandwidth},
+          "modulation": ${presets.modulation},
+          "channel": 0,
+          "duration":0,
+          "rawSize":${rawConf.RAW.length}
+        }`;
+        payload = `, "payload": ${rawArray}`
+      }
+
+
+      if (action === "RECIEVERF" || action === "TRANSMITRF" || action == "JAMRF") {
+        const frequency = document.getElementById("frequencyInput").value;
+        const deviation = document.getElementById("deviationInput").value;
+        const dataRate = document.getElementById("dataRateInput").value;
+        const bandwidth = document.getElementById("bandwidthInput").value;
+        const modulation = document.getElementById("modulationDropdown").value;
+        const channel = document.getElementById("channelInputArea").value;
+        const duration = document.getElementById("durationInputArea").value;
+        config = `, "config": {
+          "frequency": ${frequency},
+          "deviation": ${deviation},
+          "datarate": ${dataRate},
+          "bandwidth": ${bandwidth},
+          "modulation": ${modulation},
+          "channel":${channel},
+          "duration":${duration}
+        }`;
+      }
+      let bssid_str = document.getElementById("bssidTextarea").value;
+      if (action === "DEAUTH") {
+        bssid = `, "BSSID": "${bssid_str}"`;
+        config = "";
+        payload = null;
+        data = null;
+        bssid = "";
+      }
+      const message = `{"action": "${action}"${data ? data : ""}${config}${payload ? payload : ""}${bssid_str ? "" : bssid}}`;
+      console.log(message);
+      websocket.send(message);
+      config = "";
+      payload = null;
+      data = null;
+    }
+    // Function to handle file upload
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        const contents = e.target.result;
+        fileUploadContent = contents;
+      };
+      reader.readAsText(file);
+    }
+
+    function downloadData() {
+      const packetData = document.getElementById("packetWindow").innerText;
+      const blob = new Blob([packetData], { type: "text/plain" });
+
+      // Check if the browser supports the 'download' attribute
+      if (window.navigator.msSaveOrOpenBlob) {
+        // For IE and Edge
+        window.navigator.msSaveOrOpenBlob(blob, filename);
+      } else {
+        // For other browsers
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }
+    }
+
+    document.getElementById("actionDropdown").addEventListener("change", function () {
+      const selectedAction = this.value;
+      const additionalInputs = document.getElementById("additionalInputs");
+      const additionalInputsRAW = document.getElementById("additionalInputsRAW");
+      const additionalInputsRFID = document.getElementById("additionalInputsRFID");
+      const payloadInput = document.getElementById("payloadInput");
+      const channelInput = document.getElementById("channelInput");
+      const durationInput = document.getElementById("durationInput");
+      const bssidInput = document.getElementById("bssidInput");
+
+      if (selectedAction === "RECIEVERF" || selectedAction === "TRANSMITRF" || selectedAction === "JAMRF") {
+        additionalInputs.style.display = "block";
+        additionalInputsRAW.style.display = "none";
+        additionalInputsRFID.style.display = "none";
+        bssidInput.style.display = "none";
+        filename = "data.sub";
+        if (selectedAction === "TRANSMITRF") {
+          payloadInput.style.display = "block";
+        } else {
+          payloadInput.style.display = "none";
+        }
+        if (selectedAction === "JAMRF") {
+          channelInput.style.display = "block";
+          durationInput.style.display = "block";
+        } else {
+          channelInput.style.display = "none";
+          durationInput.style.display = "none";
+        }
+      }
+      else if (selectedAction === "TRANSMITRFRAW") {
+        filename = "data.sub";
+        additionalInputsRAW.style.display = "block";
+        additionalInputs.style.display = "none";
+        additionalInputsRFID.style.display = "none";
+        bssidInput.style.display = "none";
+      }
+      else if (selectedAction === "WRITERFID") {
+        additionalInputs.style.display = "none";
+        additionalInputsRAW.style.display = "none";
+        bssidInput.style.display = "none";
+        additionalInputsRFID.style.display = "block";
+      }
+      else if (selectedAction === "DEAUTH") {
+        bssidInput.style.display = "block";
+        additionalInputs.style.display = "none";
+        payloadInput.style.display = "none";
+        channelInput.style.display = "none";
+        durationInput.style.display = "none";
+        additionalInputsRFID.style.display = "none";
+        additionalInputsRAW.style.display = "none";
+        message = `{"action": "DEAUTH"}`;
+        console.log(message);
+        websocket.send(message);
+      }
+      else {
+        additionalInputs.style.display = "none";
+        payloadInput.style.display = "none";
+        channelInput.style.display = "none";
+        durationInput.style.display = "none";
+        additionalInputsRFID.style.display = "none";
+        additionalInputsRAW.style.display = "none";
+        bssidInput.style.display = "none";
+        filename = "data.txt";
+      }
+    });
+
+    document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+    document.getElementById('fileInputRAW').addEventListener('change', handleFileUpload);
+    setInterval(function () {
+      if (isConnected) {
+        const pingMessage = "Ping";
+        websocket.send(pingMessage);
+      }
+    }, 30000);
+
+  </script>
+</body>
+
+</html>
