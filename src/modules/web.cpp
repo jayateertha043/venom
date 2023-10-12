@@ -2,6 +2,7 @@
 #include "rf.h"
 #include "rfid.h"
 #include "deauth.h"
+#include "sourapple.h"
 
 /* Put IP Address details */
 IPAddress local_ip(192, 168, 1, 1);
@@ -139,7 +140,7 @@ void processCommands(char *command, uint8_t num)
     Serial.printf("\nChannel: %d\n", ch);
     Serial.printf("\nDuration: %d\n", duration);
     Serial.println();
-    initializeRFConfig(freq, mod, dev, drate, bw, duration,true, 1);
+    initializeRFConfig(freq, mod, dev, drate, bw, duration, true, 1);
     jamRF(ch, duration);
   }
   else if (action == "DETECTRF")
@@ -162,6 +163,10 @@ void processCommands(char *command, uint8_t num)
     {
       getAvailableWifi();
     }
+  }
+  else if (action == "SOURAPPLE")
+  {
+    startSourApple();
   }
   else
   {
@@ -237,7 +242,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length 
 void sendDataToClient(byte data[], size_t dataSize, uint8_t clientID)
 {
   // Create a dynamic JSON document
-  //DynamicJsonDocument doc(20000);
+  // DynamicJsonDocument doc(20000);
   doc.clear();
   Serial.println(dataSize);
   // Copy the byte array to the JSON document
@@ -255,10 +260,10 @@ void sendDataToClient(byte data[], size_t dataSize, uint8_t clientID)
   doc.clear();
 }
 
-void send2DataToClient(byte** data, size_t rows, size_t cols, uint8_t clientID)
+void send2DataToClient(byte **data, size_t rows, size_t cols, uint8_t clientID)
 {
   // Create a dynamic JSON document
-  //DynamicJsonDocument doc(40000);
+  // DynamicJsonDocument doc(40000);
   doc.clear();
   // Add each element of the 2D array to the JSON array
   for (size_t i = 0; i < rows; i++)

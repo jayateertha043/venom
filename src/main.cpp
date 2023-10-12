@@ -10,7 +10,7 @@ void setup()
   Serial.begin(9200); // Initialize serial communications with the PC
   while (!Serial)
     ;
-  initializeModule(3);
+  //initializeModule(3);
   initializeWifi();
   
   //initializeModule(2); 
