@@ -26,6 +26,7 @@ Venom comes equipped with a diverse set of features:
 - [x] RFID Reading: Read MIFARE RFID tags and access their data.
 - [x] RFID Cloning/Writing: Clone or write data into RFID tags.
 - [x] WiFi Deauthentication Attack: Perform WiFi deauthentication attacks on wireless networks.
+- [x] Sour Apple Attack: Crash nearby iOS devices having bluetooth switched on.
 - [ ] Rubber Ducky Attack: Execute automated keyboard-based attacks using the Rubber Ducky scripting language.
 - [ ] IR Signal Recording: Capture and record IR signals for later analysis.
 - [ ] IR Signal Transmission: Transmit IR signals to interact with compatible devices.
