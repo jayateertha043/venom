@@ -5,52 +5,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VENOM</title>
-  <link rel = "icon" href ="../res/VENOM_TRANSPARENT.png" type = "image/x-icon">
+  <link rel="icon" href="./img/VENOM_TRANSPARENT.png" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css">
-  <style>
-    body.dark-mode {
-      background-color: #222;
-      color: #fff;
-    }
-
-    body.dark-mode h1,
-    body.dark-mode h2 {
-      color: #fff;
-    }
-
-    body.dark-mode p,
-    body.dark-mode label,
-    body.dark-mode input,
-    body.dark-mode select,
-    body.dark-mode textarea,
-    body.dark-mode .btn {
-      color: #fff;
-      background-color: #333;
-    }
-
-    body.dark-mode select,
-    body.dark-mode textarea,
-    body.dark-mode .btn {
-      border-color: #555;
-    }
-
-    body.dark-mode #packetWindow {
-      border-color: #0f0;
-      color: rgb(239, 246, 118);
-    }
-
-    body.dark-mode #packetWindowP,
-    body.dark-mode #packetWindow p {
-      color: rgb(239, 246, 118);
-      font-weight: 500;
-    }
-  </style>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 
 <body class="dark-mode">
   <div class="container">
     <h1><img src="./img/VENOM_TRANSPARENT.png" height="150" width="150"></img>VENOM</h1>
-    
+
     <p id="connectionStatus"></p>
     <div class="mb-3">
       <label for="actionDropdown" class="form-label">Action</label>
@@ -136,14 +99,15 @@
     </div>
     <button type="submit" class="btn btn-primary" onclick="submitForm()">Submit</button>
 
-    <h2>Incoming Packets</h2>
+    <h2>Incoming Messages</h2>
     <div id="packetWindow" class="mb-6 text-justify">
       <p id="packetWindowP" class="mb-6 text-justify" style="word-wrap: break-word;"></p>
     </div>
     <button type="button" class="btn btn-primary" onclick="downloadData()">Download</button>
   </div>
-
   <script>
+
+    //variables
     var fileUploadContent;
     const connectionStatusElement = document.getElementById("connectionStatus");
     const packetWindowW = document.getElementById("packetWindow");
@@ -152,6 +116,8 @@
     let isConnected = false;
     var rawConf;
     var filename = "data.txt";
+
+    //utility functions
     function formatArray(array) {
       return "[" + array.map(innerArray => formatInnerArray(innerArray)).join(",\n") + "]";
     }
@@ -222,6 +188,8 @@
 
       return variables;
     }
+
+    //websocket event handlers
     websocket.onmessage = function (event) {
       console.log(event.data);
       packetWindowW.style.border = "1px solid green";
@@ -230,16 +198,13 @@
       let dataArray;
 
       try {
-        // Try parsing the data as JSON
         dataArray = JSON.parse(event.data);
-
         if (Array.isArray(dataArray)) {
           const newPacket = document.createElement("p");
           newPacket.innerText = formatArray(dataArray);
           packetWindow.appendChild(newPacket);
         }
       } catch (error) {
-        // Handle plain text
         const newPacket = document.createElement("p");
         newPacket.innerText = event.data;
         packetWindow.appendChild(newPacket);
@@ -248,27 +213,27 @@
 
     websocket.onopen = function () {
       isConnected = true;
-      connectionStatusElement.innerText = "WebSocket connected";
+      connectionStatusElement.innerText = "Venom connected";
       packetWindowW.style.border = "1px solid green";
     };
 
     websocket.onclose = function () {
       isConnected = false;
-      connectionStatusElement.innerText = "WebSocket disconnected";
+      connectionStatusElement.innerText = "Venom disconnected";
       packetWindowW.style.border = "1px solid red";
     };
 
     websocket.onerror = function () {
       isConnected = false;
-      connectionStatusElement.innerText = "WebSocket disconnected";
+      connectionStatusElement.innerText = "Venom disconnected";
       packetWindowW.style.border = "1px solid red";
     };
 
 
-
+    //Handle form submission & data construction for sending in websocket
     function submitForm() {
       if (!isConnected) {
-        connectWebSocket();
+        console.log("Venom not connected, couldn't submit form !")
       }
       packetWindowW.innerHTML = "";
       const action = document.getElementById("actionDropdown").value;
@@ -355,6 +320,7 @@
       payload = null;
       data = null;
     }
+
     // Function to handle file upload
     function handleFileUpload(event) {
       const file = event.target.files[0];
@@ -367,6 +333,7 @@
       reader.readAsText(file);
     }
 
+    // Function to download message recieved from Venom
     function downloadData() {
       const packetData = document.getElementById("packetWindow").innerText;
       const blob = new Blob([packetData], { type: "text/plain" });
@@ -385,6 +352,7 @@
       }
     }
 
+    //Dropdown UI changes
     document.getElementById("actionDropdown").addEventListener("change", function () {
       const selectedAction = this.value;
       const additionalInputs = document.getElementById("additionalInputs");
@@ -453,6 +421,8 @@
 
     document.getElementById('fileInput').addEventListener('change', handleFileUpload);
     document.getElementById('fileInputRAW').addEventListener('change', handleFileUpload);
+
+    //Ping Venom regularly to keep connection active
     setInterval(function () {
       if (isConnected) {
         const pingMessage = "Ping";

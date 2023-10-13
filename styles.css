@@ -1,0 +1,36 @@
+body.dark-mode {
+    background-color: #222;
+    color: #fff;
+}
+
+body.dark-mode h1,
+body.dark-mode h2 {
+    color: #fff;
+}
+
+body.dark-mode p,
+body.dark-mode label,
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea,
+body.dark-mode .btn {
+    color: #fff;
+    background-color: #333;
+}
+
+body.dark-mode select,
+body.dark-mode textarea,
+body.dark-mode .btn {
+    border-color: #555;
+}
+
+body.dark-mode #packetWindow {
+    border-color: #0f0;
+    color: rgb(239, 246, 118);
+}
+
+body.dark-mode #packetWindowP,
+body.dark-mode #packetWindow p {
+    color: rgb(239, 246, 118);
+    font-weight: 500;
+}
