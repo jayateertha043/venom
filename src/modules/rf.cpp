@@ -2,7 +2,7 @@
 #include "utils/utils.h"
 #include "web.h"
 
-#define samplesize 1000
+#define samplesize 10000
 
 int RXPin = 4;
 int Gdo0 = 2;

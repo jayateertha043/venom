@@ -10,7 +10,7 @@ IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
 const char *ssid = "VENOM";        // Enter SSID here
-const char *password = "12345678"; // Enter Password here
+const char *password = "00000000"; // Enter Password here
 int client1 = -1;
 bool isFirstClient = false;
 WebSocketsServer webSocket(81);
